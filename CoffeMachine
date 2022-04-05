@@ -1,0 +1,185 @@
+package CoffeeMachine;
+
+import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CoffeeMachine {
+
+    static final Scanner scanner = new Scanner(System.in);
+
+    static final Map<String, Integer> quantityIngredient = new HashMap<>();
+
+    static final Map<String, Integer> espresso = new HashMap<>();
+    static final Map<String, Integer> latte = new HashMap<>();
+    static final Map<String, Integer> cappuccino = new HashMap<>();
+
+    static {
+        quantityIngredient.put("water", 400);
+        quantityIngredient.put("milk", 540);
+        quantityIngredient.put("beans", 120);
+        quantityIngredient.put("money", 550);
+        quantityIngredient.put("disposableCup", 9);
+
+        espresso.put("water", 250);
+        espresso.put("beans", 16);
+        espresso.put("milk", 0);
+        espresso.put("costs", 4);
+
+        latte.put("water", 350);
+        latte.put("milk", 75);
+        latte.put("beans", 20);
+        latte.put("costs", 7);
+
+        cappuccino.put("water", 200);
+        cappuccino.put("milk", 100);
+        cappuccino.put("beans", 12);
+        cappuccino.put("costs", 6);
+    }
+
+    public static void main(String[] args) {
+
+        boolean work = true;
+
+
+        while (work) {
+            System.out.println("Write action (buy, fill, take, remaining, exit): ");
+            String action = scanner.nextLine();
+
+            switch (action) {
+                case "remaining" -> remaining();
+                case "buy" -> buy();
+                case "fill" -> fill();
+                case "take" -> take();
+                case "exit" -> work = false;
+                default -> {
+                }
+            }
+        }
+
+    }
+
+    private static void take() {
+        System.out.printf("I gave you $%d%n", quantityIngredient.get("money"));
+        quantityIngredient.put("money", 0);
+    }
+
+    private static void remaining() {
+        System.out.printf("The coffee machine has:%n" +
+                        "%d ml of water%n" +
+                        "%d ml of milk%n" +
+                        "%d g of coffee beans%n" +
+                        "%d disposable cups%n" +
+                        "$%d of money%n",
+                quantityIngredient.get("water"), quantityIngredient.get("milk"),
+                quantityIngredient.get("beans"), quantityIngredient.get("disposableCup"),
+                quantityIngredient.get("money"));
+    }
+
+    private static void fill() {
+
+        System.out.println("Write how many ml of water you want to add: ");
+        int water = scanner.nextInt() + quantityIngredient.get("water");
+        quantityIngredient.put("water", water);
+
+        System.out.println("Write how many ml of milk you want to add: ");
+        int milk = scanner.nextInt() + quantityIngredient.get("milk");
+        quantityIngredient.put("milk", milk);
+
+        System.out.println("Write how many grams of coffee beans you want to add: ");
+        int beans = scanner.nextInt() + quantityIngredient.get("beans");
+        quantityIngredient.put("beans", beans);
+
+        System.out.println("Write how many disposable cups of coffee you want to add: ");
+        int disposableCups = scanner.nextInt() + quantityIngredient.get("disposableCup");
+        quantityIngredient.put("disposableCup", disposableCups);
+    }
+
+    private static void buy() {
+        System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ");
+        String answer = scanner.nextLine();
+
+        switch (answer) {
+            case "1" -> buyEspresso();
+            case "2" -> buyLatte();
+            case "3" -> buyCappuccino();
+            default -> {
+            }
+        }
+
+    }
+
+    private static void buyCappuccino() {
+
+        if (notEnoughQuantityIngredient(cappuccino)) return;
+
+        calculateQuantityIngredient(cappuccino);
+
+    }
+
+    private static void buyLatte() {
+
+        if (notEnoughQuantityIngredient(latte)) return;
+
+        calculateQuantityIngredient(latte);
+
+    }
+
+    private static void buyEspresso() {
+
+        if (notEnoughQuantityIngredient(espresso)) return;
+
+        calculateQuantityIngredient(espresso);
+
+    }
+
+    private static void calculateQuantityIngredient(Map<String, Integer> coffee) {
+
+        int water = quantityIngredient.get("water") - coffee.get("water");
+        quantityIngredient.put("water", water);
+
+        int milk = quantityIngredient.get("milk") - coffee.get("milk");
+        quantityIngredient.put("milk", milk);
+
+        int beans = quantityIngredient.get("beans") - coffee.get("beans");
+        quantityIngredient.put("beans", beans);
+
+        int disposableCup = quantityIngredient.get("disposableCup") - 1;
+        quantityIngredient.put("disposableCup", disposableCup);
+
+        int money = quantityIngredient.get("money") + coffee.get("costs");
+        quantityIngredient.put("money", money);
+
+    }
+
+    private static boolean notEnoughQuantityIngredient(Map<String, Integer> coffee) {
+
+        boolean result = false;
+
+        if (coffee.get("water") != 0) {
+            if (quantityIngredient.get("water") / coffee.get("water") < 1) {
+                result = true;
+            }
+        }
+        if (coffee.get("milk") != 0) {
+            if (quantityIngredient.get("milk") / coffee.get("milk") < 1) {
+                result = true;
+            }
+        }
+        if (coffee.get("beans") != 0) {
+            if (quantityIngredient.get("beans") / coffee.get("beans") < 1) {
+                result = true;
+            }
+        }
+        if (quantityIngredient.get("disposableCup") < 1) {
+            result = true;
+        }
+
+        if (result) {
+            System.out.println("Sorry, not enough water!");
+        } else {
+            System.out.println("I have enough resources, making you a coffee!");
+        }
+        return result;
+    }
+}
